@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217973990694",
+    "project_id": "cruise-app-72ea2",
+    "storage_bucket": "cruise-app-72ea2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217973990694:android:ed4f9276c1e263ab9c0de7",
+        "android_client_info": {
+          "package_name": "com.cruise"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-oOLf557ThTJuGRhmQIN-eJJNkxXxYsY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
