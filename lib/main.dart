@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cruise_app/screens/passenger/register.dart';
+// import 'package:cruise_app/screens/passenger/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:cruise_app/screens/passenger/homepage.dart';
+// import 'package:cruise_app/screens/passenger/homepage.dart';
+import 'package:cruise_app/screens/options.dart';
 
-void main() {void main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -12,7 +13,7 @@ void main() {void main() async {
   runApp(const CruiseApp());
 }
   
-}
+
 
 class CruiseApp extends StatelessWidget {
   const CruiseApp({super.key});
@@ -28,7 +29,7 @@ class CruiseApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const Register(),
+      home: const Options(),
     );
   }
 }

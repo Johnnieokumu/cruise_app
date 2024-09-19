@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>io.flutter.embedded_views_preview</key>
+<true/>
+<key>GMSApiKey</key>
+<string>AIzaSyBsXgSHQBgcQ7uV9nBUSEX_UlfHGYo4JZE</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>We need your location to show nearby drivers and pick-up points.</string>
+
 </dict>
 </plist>

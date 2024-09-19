@@ -1,71 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cruise_app/screens/passenger/homepage.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cruise_app/screens/passenger/login.dart';
+import 'package:cruise_app/screens/passenger/register.dart';
 
-class Register extends StatefulWidget {
-  const Register({super.key});
+class DriverLogin extends StatefulWidget {
+  const DriverLogin({super.key});
 
   @override
-  State<Register> createState() => _RegistrationState();
+  State<DriverLogin> createState() => _DriverLoginState();
 }
 
-class _RegistrationState extends State<Register> {
-  final TextEditingController usernameController = TextEditingController();
+class _DriverLoginState extends State<DriverLogin> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   bool passwordObscure = true;
-  bool confirmPasswordObscure = true;
   bool _isLoading = false;
 
-  Future<void> register() async {
-    if (_formKey.currentState!.validate()) {
-      if (passwordController.text != confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Passwords do not match'),
-            backgroundColor: Color.fromARGB(255, 136, 112, 76),
-          ),
-        );
-        return;
-      }
-
+  Future<void> DriverLogin() async {
+    if (formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential driverCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
 
-        // Add user info to Firestore
-        CollectionReference users = FirebaseFirestore.instance.collection('users');
-        await users.doc(userCredential.user!.uid).set({
-          'email': emailController.text,
-          'username': usernameController.text,
-        });
+        // Retrieve user data from Firestore
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('drivers')
+            .doc(driverCredential.user!.uid)
+            .get();
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Welcome to Cruise App')),
-          );
+        Map<String, dynamic>? userData = userDoc.data() as Map<String, dynamic>?;
 
-          // Navigate to the homepage
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (BuildContext context) => const Homepage()),
-          );
+        if (userData != null) {
+          String email = userData['email'];
+          String username = userData['username'];
+
+          // You can now use the email and username as needed
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Welcome back, $username')),
+            );
+
+            // Navigate to the homepage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (BuildContext context) => const Homepage()),
+            );
+          }
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Registration failed: ${e.toString()}'),
+            content: Text('DriverLogin failed: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -81,8 +75,6 @@ class _RegistrationState extends State<Register> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
-    usernameController.dispose();
     super.dispose();
   }
 
@@ -93,7 +85,7 @@ class _RegistrationState extends State<Register> {
       home: Scaffold(
         body: SingleChildScrollView(
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 40),
               height: MediaQuery.of(context).size.height - 50,
@@ -106,7 +98,7 @@ class _RegistrationState extends State<Register> {
                     children: <Widget>[
                       const SizedBox(height: 60.0),
                       const Text(
-                        "Sign up",
+                        "Driver Login",
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -114,7 +106,7 @@ class _RegistrationState extends State<Register> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        "Create your account",
+                        "Sign in to your account",
                         style: TextStyle(fontSize: 15, color: Colors.grey[700]),
                       ),
                     ],
@@ -122,22 +114,7 @@ class _RegistrationState extends State<Register> {
                   Column(
                     children: <Widget>[
                       TextFormField(
-                        validator: (value) => value != null && value.isNotEmpty ? null : "Please enter a username",
-                        controller: usernameController,
-                        decoration: InputDecoration(
-                          hintText: "Username",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: const Color.fromARGB(255, 126, 60, 36).withOpacity(0.1),
-                          filled: true,
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        validator: (value) => EmailValidator.validate(value!) ? null : "Please enter a valid email",
+                        validator: (value) => value != null && value.isNotEmpty ? null : "Please enter your email",
                         controller: emailController,
                         decoration: InputDecoration(
                           hintText: "Email",
@@ -152,7 +129,7 @@ class _RegistrationState extends State<Register> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
-                        validator: (value) => value != null && value.isNotEmpty ? null : "Please enter a password",
+                        validator: (value) => value != null && value.isNotEmpty ? null : "Please enter your password",
                         controller: passwordController,
                         decoration: InputDecoration(
                           hintText: "Password",
@@ -174,30 +151,6 @@ class _RegistrationState extends State<Register> {
                         ),
                         obscureText: passwordObscure,
                       ),
-                      const SizedBox(height: 20),
-                      TextFormField(
-                        validator: (value) => value != null && value.isNotEmpty ? null : "Please confirm your password",
-                        controller: confirmPasswordController,
-                        decoration: InputDecoration(
-                          hintText: "Confirm Password",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(18),
-                            borderSide: BorderSide.none,
-                          ),
-                          fillColor: const Color.fromARGB(255, 126, 60, 36).withOpacity(0.1),
-                          filled: true,
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                confirmPasswordObscure = !confirmPasswordObscure;
-                              });
-                            },
-                            icon: Icon(confirmPasswordObscure ? Icons.visibility_off : Icons.visibility),
-                          ),
-                        ),
-                        obscureText: confirmPasswordObscure,
-                      ),
                     ],
                   ),
                   _isLoading
@@ -205,9 +158,9 @@ class _RegistrationState extends State<Register> {
                       : Container(
                           padding: const EdgeInsets.only(top: 3, left: 3),
                           child: ElevatedButton(
-                            onPressed: register,
+                            onPressed: DriverLogin,
                             child: const Text(
-                              "Sign up",
+                              "DriverLogin",
                               style: TextStyle(fontSize: 20),
                             ),
                             style: ElevatedButton.styleFrom(
@@ -246,7 +199,7 @@ class _RegistrationState extends State<Register> {
                             width: 30.0,
                             decoration: const BoxDecoration(
                               // image: DecorationImage(
-                              //   image: AssetImage('assets/images/login_signup/google.png'),
+                                // image: AssetImage('assets/images/DriverLogin_signup/google.png'),
                               //   fit: BoxFit.cover,
                               // ),
                               shape: BoxShape.circle,
@@ -267,16 +220,16 @@ class _RegistrationState extends State<Register> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Text("Already have an account?"),
+                      const Text("Don't have an account?"),
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (BuildContext context) => const Login()),
+                            MaterialPageRoute(builder: (BuildContext context) => const Register()),
                           );
                         },
                         child: const Text(
-                          "Login",
+                          "Sign up",
                           style: TextStyle(color: Color.fromARGB(255, 126, 60, 36)),
                         ),
                       )
